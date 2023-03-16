@@ -31,7 +31,6 @@ pre code {
 }
 
 *{
-    border-radius: 3px !important;
     transition: all 0.6s;
 }
 
