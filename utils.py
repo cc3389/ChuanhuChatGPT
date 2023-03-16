@@ -16,11 +16,13 @@ from presets import *
 import tiktoken
 from tqdm import tqdm
 import colorama
+import base64
 
 # logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s")
 
 if TYPE_CHECKING:
     from typing import TypedDict
+
 
     class DataframeData(TypedDict):
         headers: List[str]
@@ -31,30 +33,33 @@ API_URL = "https://api.openai.com/v1/chat/completions"
 HISTORY_DIR = "history"
 TEMPLATES_DIR = "templates"
 
+
 def postprocess(
         self, y: List[Tuple[str | None, str | None]]
-    ) -> List[Tuple[str | None, str | None]]:
-        """
+) -> List[Tuple[str | None, str | None]]:
+    """
         Parameters:
             y: List of tuples representing the message and response pairs. Each message and response should be a string, which may be in Markdown format.
         Returns:
             List of tuples representing the message and response. Each message and response will be a string of HTML.
         """
-        if y is None:
-            return []
-        for i, (message, response) in enumerate(y):
-            y[i] = (
-                # None if message is None else markdown.markdown(message),
-                # None if response is None else markdown.markdown(response),
-                None if message is None else mdtex2html.convert((message)),
-                None if response is None else mdtex2html.convert(response),
-            )
-        return y
+    if y is None:
+        return []
+    for i, (message, response) in enumerate(y):
+        y[i] = (
+            # None if message is None else markdown.markdown(message),
+            # None if response is None else markdown.markdown(response),
+            None if message is None else mdtex2html.convert((message)),
+            None if response is None else mdtex2html.convert(response),
+        )
+    return y
+
 
 def count_token(input_str):
     encoding = tiktoken.get_encoding("cl100k_base")
     length = len(encoding.encode(input_str))
     return length
+
 
 def parse_text(text):
     lines = text.split("\n")
@@ -83,24 +88,30 @@ def parse_text(text):
                     line = line.replace("(", "&#40;")
                     line = line.replace(")", "&#41;")
                     line = line.replace("$", "&#36;")
-                lines[i] = "<br>"+line
+                lines[i] = "<br>" + line
     text = "".join(lines)
     return text
+
 
 def construct_text(role, text):
     return {"role": role, "content": text}
 
+
 def construct_user(text):
     return construct_text("user", text)
+
 
 def construct_system(text):
     return construct_text("system", text)
 
+
 def construct_assistant(text):
     return construct_text("assistant", text)
 
+
 def construct_token_message(token, stream=False):
     return f"Token 计数: {token}"
+
 
 def get_response(openai_api_key, system_prompt, history, temperature, top_p, stream, selected_model):
     headers = {
@@ -124,10 +135,13 @@ def get_response(openai_api_key, system_prompt, history, temperature, top_p, str
         timeout = timeout_streaming
     else:
         timeout = timeout_all
-    response = requests.post(API_URL, headers=headers, json=payload, stream=True, timeout=timeout)
+    proxies = {'http': "127.0.0.1:7891", 'https': "127.0.0.1:7891"}
+    response = requests.post(API_URL, headers=headers, json=payload, stream=True, timeout=timeout, proxies=proxies)
     return response
 
-def stream_predict(openai_api_key, system_prompt, history, inputs, chatbot, all_token_counts, top_p, temperature, selected_model):
+
+def stream_predict(openai_api_key, system_prompt, history, inputs, chatbot, all_token_counts, top_p, temperature,
+                   selected_model):
     def get_return_value():
         return chatbot, history, status_text, all_token_counts
 
@@ -188,7 +202,8 @@ def stream_predict(openai_api_key, system_prompt, history, inputs, chatbot, all_
                 try:
                     partial_words = partial_words + chunk['choices'][0]["delta"]["content"]
                 except KeyError:
-                    status_text = standard_error_msg + "API回复中找不到内容。很可能是Token计数达到上限了。请重置对话。当前Token计数: " + str(sum(all_token_counts))
+                    status_text = standard_error_msg + "API回复中找不到内容。很可能是Token计数达到上限了。请重置对话。当前Token计数: " + str(
+                        sum(all_token_counts))
                     yield get_return_value()
                     break
                 history[-1] = construct_assistant(partial_words)
@@ -197,7 +212,8 @@ def stream_predict(openai_api_key, system_prompt, history, inputs, chatbot, all_
                 yield get_return_value()
 
 
-def predict_all(openai_api_key, system_prompt, history, inputs, chatbot, all_token_counts, top_p, temperature, selected_model):
+def predict_all(openai_api_key, system_prompt, history, inputs, chatbot, all_token_counts, top_p, temperature,
+                selected_model):
     logging.info("一次性回答模式")
     history.append(construct_user(inputs))
     history.append(construct_assistant(""))
@@ -224,8 +240,9 @@ def predict_all(openai_api_key, system_prompt, history, inputs, chatbot, all_tok
     return chatbot, history, status_text, all_token_counts
 
 
-def predict(openai_api_key, system_prompt, history, inputs, chatbot, all_token_counts, top_p, temperature, stream=False, selected_model = MODELS[0], should_check_token_count = True):  # repetition_penalty, top_k
-    logging.info("输入为：" +colorama.Fore.BLUE + f"{inputs}" + colorama.Style.RESET_ALL)
+def predict(openai_api_key, system_prompt, history, inputs, chatbot, all_token_counts, top_p, temperature, stream=False,
+            selected_model=MODELS[0], should_check_token_count=True):  # repetition_penalty, top_k
+    logging.info("输入为：" + colorama.Fore.BLUE + f"{inputs}" + colorama.Style.RESET_ALL)
     if len(openai_api_key) != 51:
         status_text = standard_error_msg + no_apikey_msg
         logging.info(status_text)
@@ -242,16 +259,19 @@ def predict(openai_api_key, system_prompt, history, inputs, chatbot, all_token_c
         yield chatbot, history, "开始生成回答……", all_token_counts
     if stream:
         logging.info("使用流式传输")
-        iter = stream_predict(openai_api_key, system_prompt, history, inputs, chatbot, all_token_counts, top_p, temperature, selected_model)
+        iter = stream_predict(openai_api_key, system_prompt, history, inputs, chatbot, all_token_counts, top_p,
+                              temperature, selected_model)
         for chatbot, history, status_text, all_token_counts in iter:
             yield chatbot, history, status_text, all_token_counts
     else:
         logging.info("不使用流式传输")
-        chatbot, history, status_text, all_token_counts = predict_all(openai_api_key, system_prompt, history, inputs, chatbot, all_token_counts, top_p, temperature, selected_model)
+        chatbot, history, status_text, all_token_counts = predict_all(openai_api_key, system_prompt, history, inputs,
+                                                                      chatbot, all_token_counts, top_p, temperature,
+                                                                      selected_model)
         yield chatbot, history, status_text, all_token_counts
     logging.info(f"传输完毕。当前token计数为{all_token_counts}")
     if len(history) > 1 and history[-1]['content'] != inputs:
-        logging.info("回答为：" +colorama.Fore.BLUE + f"{history[-1]['content']}" + colorama.Style.RESET_ALL)
+        logging.info("回答为：" + colorama.Fore.BLUE + f"{history[-1]['content']}" + colorama.Style.RESET_ALL)
     if stream:
         max_token = max_token_streaming
     else:
@@ -260,13 +280,15 @@ def predict(openai_api_key, system_prompt, history, inputs, chatbot, all_token_c
         status_text = f"精简token中{all_token_counts}/{max_token}"
         logging.info(status_text)
         yield chatbot, history, status_text, all_token_counts
-        iter = reduce_token_size(openai_api_key, system_prompt, history, chatbot, all_token_counts, top_p, temperature, stream=False, selected_model=selected_model, hidden=True)
+        iter = reduce_token_size(openai_api_key, system_prompt, history, chatbot, all_token_counts, top_p, temperature,
+                                 stream=False, selected_model=selected_model, hidden=True)
         for chatbot, history, status_text, all_token_counts in iter:
             status_text = f"Token 达到上限，已自动降低Token计数至 {status_text}"
             yield chatbot, history, status_text, all_token_counts
 
 
-def retry(openai_api_key, system_prompt, history, chatbot, token_count, top_p, temperature, stream=False, selected_model = MODELS[0]):
+def retry(openai_api_key, system_prompt, history, chatbot, token_count, top_p, temperature, stream=False,
+          selected_model=MODELS[0]):
     logging.info("重试中……")
     if len(history) == 0:
         yield chatbot, history, f"{standard_error_msg}上下文是空的", token_count
@@ -274,15 +296,18 @@ def retry(openai_api_key, system_prompt, history, chatbot, token_count, top_p, t
     history.pop()
     inputs = history.pop()["content"]
     token_count.pop()
-    iter = predict(openai_api_key, system_prompt, history, inputs, chatbot, token_count, top_p, temperature, stream=stream, selected_model=selected_model)
+    iter = predict(openai_api_key, system_prompt, history, inputs, chatbot, token_count, top_p, temperature,
+                   stream=stream, selected_model=selected_model)
     logging.info("重试完毕")
     for x in iter:
         yield x
 
 
-def reduce_token_size(openai_api_key, system_prompt, history, chatbot, token_count, top_p, temperature, stream=False, selected_model = MODELS[0], hidden=False):
+def reduce_token_size(openai_api_key, system_prompt, history, chatbot, token_count, top_p, temperature, stream=False,
+                      selected_model=MODELS[0], hidden=False):
     logging.info("开始减少token数量……")
-    iter = predict(openai_api_key, system_prompt, history, summarize_prompt, chatbot, token_count, top_p, temperature, stream=stream, selected_model = selected_model, should_check_token_count=False)
+    iter = predict(openai_api_key, system_prompt, history, summarize_prompt, chatbot, token_count, top_p, temperature,
+                   stream=stream, selected_model=selected_model, should_check_token_count=False)
     logging.info(f"chatbot: {chatbot}")
     for chatbot, history, status_text, previous_token_count in iter:
         history = history[-2:]
@@ -350,8 +375,10 @@ def load_chat_history(filename, system, history, chatbot):
         logging.info("没有找到对话历史文件，不执行任何操作")
         return filename, system, history, chatbot
 
+
 def sorted_by_pinyin(list):
     return sorted(list, key=lambda char: lazy_pinyin(char)[0][0])
+
 
 def get_file_names(dir, plain=False, filetypes=[".json"]):
     logging.info(f"获取文件名列表，目录为{dir}，文件类型为{filetypes}，是否为纯文本列表{plain}")
@@ -369,9 +396,11 @@ def get_file_names(dir, plain=False, filetypes=[".json"]):
     else:
         return gr.Dropdown.update(choices=files)
 
+
 def get_history_names(plain=False):
     logging.info("获取历史记录文件名列表")
     return get_file_names(HISTORY_DIR, plain)
+
 
 def load_template(filename, mode=0):
     logging.info(f"加载模板文件{filename}，模式为{mode}（0为返回字典和下拉菜单，1为返回下拉菜单，2为返回字典）")
@@ -386,17 +415,29 @@ def load_template(filename, mode=0):
             reader = csv.reader(csvfile)
             lines = list(reader)
         lines = lines[1:]
+    for sublist in lines:
+        prompts = sublist[1]
+        # 检查prompts是否是base64编码的字符串
+        try:
+            decoded_prompts = base64.b64decode(prompts).decode('utf-8')
+            if len(decoded_prompts) != 0:
+                sublist[1] = decoded_prompts
+        except:
+            # 如果不能解码，则不替换prompts
+            pass
     if mode == 1:
         return sorted_by_pinyin([row[0] for row in lines])
     elif mode == 2:
-        return {row[0]:row[1] for row in lines}
+        return {row[0]: row[1] for row in lines}
     else:
         choices = sorted_by_pinyin([row[0] for row in lines])
-        return {row[0]:row[1] for row in lines}, gr.Dropdown.update(choices=choices, value=choices[0])
+        return {row[0]: row[1] for row in lines}, gr.Dropdown.update(choices=choices, value=choices[0])
+
 
 def get_template_names(plain=False):
     logging.info("获取模板文件名列表")
     return get_file_names(TEMPLATES_DIR, plain, filetypes=[".csv", "json"])
+
 
 def get_template_content(templates, selection, original_system_prompt):
     logging.info(f"应用模板中，选择为{selection}，原始系统提示为{original_system_prompt}")
@@ -405,9 +446,11 @@ def get_template_content(templates, selection, original_system_prompt):
     except:
         return original_system_prompt
 
+
 def reset_state():
     logging.info("重置状态")
     return [], [], [], construct_token_message(0)
+
 
 def reset_textbox():
     return gr.update(value='')
