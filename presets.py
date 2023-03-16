@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-title = """<h1 align="center">川虎ChatGPT 🚀</h1>"""
+title = """<h1 align="left">川虎ChatGPT 🚀</h1>"""
 description = """<div align=center>
 
 由Bilibili [土川虎虎虎](https://space.bilibili.com/29125536) 和 [明昭MZhao](https://space.bilibili.com/24807452)开发
@@ -29,10 +29,25 @@ pre code {
     color: #FFF;
     box-shadow: inset 0px 8px 16px hsla(0, 0%, 0%, .2)
 }
+
+*{
+    border-radius: 3px !important;
+    transition: all 0.6s;
+}
+
+
 """
 
 summarize_prompt = "你是谁？我们刚才聊了什么？" # 总结对话时的 prompt
 MODELS = ["gpt-3.5-turbo", "gpt-3.5-turbo-0301", "gpt-4","gpt-4-0314", "gpt-4-32k", "gpt-4-32k-0314"] # 可选的模型
+websearch_prompt = """Web search results:
+
+{web_results}
+Current date: {current_date}
+
+Instructions: Using the provided web search results, write a comprehensive reply to the given query. Make sure to cite results using [[number](URL)] notation after the reference. If the provided search results refer to multiple subjects with the same name, write separate answers for each subject.
+Query: {query}
+Reply in 中文"""
 
 # 错误信息
 standard_error_msg = "☹️发生了错误：" # 错误信息的标准前缀
