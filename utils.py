@@ -21,7 +21,8 @@ from duckduckgo_search import ddg
 import datetime
 
 # logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s")
-
+# 代理地址配置
+proxies = {'http': "127.0.0.1:7891", 'https': "127.0.0.1:7891"}
 if TYPE_CHECKING:
     from typing import TypedDict
 
@@ -127,7 +128,7 @@ def get_response(openai_api_key, system_prompt, history, temperature, top_p, str
         timeout = timeout_streaming
     else:
         timeout = timeout_all
-    proxies = {'http': "127.0.0.1:7891", 'https': "127.0.0.1:7891"}
+
     response = requests.post(API_URL, headers=headers, json=payload, stream=True, timeout=timeout, proxies=proxies)
     return response
 
@@ -233,6 +234,7 @@ def predict_all(openai_api_key, system_prompt, history, inputs, chatbot, all_tok
 def predict(openai_api_key, system_prompt, history, inputs, chatbot, all_token_counts, top_p, temperature, stream=False, selected_model = MODELS[0], use_websearch_checkbox = False, should_check_token_count = True):  # repetition_penalty, top_k
     logging.info("输入为：" +colorama.Fore.BLUE + f"{inputs}" + colorama.Style.RESET_ALL)
     if use_websearch_checkbox:
+
         results = ddg(inputs, max_results=3)
         web_results = []
         for idx, result in enumerate(results):
