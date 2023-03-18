@@ -79,7 +79,7 @@ with gr.Blocks(css=customCSS) as demo:
                     with gr.Accordion("参数", open=False):
                         top_p = gr.Slider(minimum=-0, maximum=1.0, value=1.0, step=0.05,
                                         interactive=True, label="Top-p (nucleus sampling)",)
-                        temperature = gr.Slider(minimum=-0, maximum=2.0, value=1.0,
+                        temperature = gr.Slider(minimum=-0, maximum=2.0, value=0.9,
                                                 step=0.1, interactive=True, label="Temperature",)
                     use_streaming_checkbox = gr.Checkbox(label="实时传输回答", value=True, visible=enable_streaming_option)
                     use_websearch_checkbox = gr.Checkbox(label="使用在线搜索", value=False)
@@ -164,3 +164,7 @@ if __name__ == "__main__":
             demo.queue().launch(server_name="0.0.0.0", server_port=7860, share=False) # 可自定义端口
         #demo.queue().launch(server_name="0.0.0.0", server_port=7860,auth=("在这里填写用户名", "在这里填写密码")) # 可设置用户名与密码
         #demo.queue().launch(auth=("在这里填写用户名", "在这里填写密码")) # 适合Nginx反向代理
+
+
+
+
