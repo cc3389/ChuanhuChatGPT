@@ -5,7 +5,7 @@
   </a>
 
   <p align="center">
-    为ChatGPT API提供了一个轻快好用的Web图形界面
+    <h3>为ChatGPT API提供了一个轻快好用的Web图形界面</h3>
     <p align="center">
       <a href="https://github.com/GaiZhenbiao/ChuanhuChatGPT/blob/main/LICENSE">
         <img alt="Tests Passing" src="https://img.shields.io/github/license/GaiZhenbiao/ChuanhuChatGPT" />
@@ -23,48 +23,29 @@
         <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/GaiZhenBiao/ChuanhuChatGPT?color=0088ff" />
       </a>
       <br/>
-      <a href="https://www.bilibili.com/video/BV1mo4y1r7eE">视频教程</a>
-        |
-      <a href="https://huggingface.co/spaces/JohnSmith9982/ChuanhuChatGPT">在线体验</a>
-      </p>
+      <em>实时回复 / 无限对话 / 保存对话记录 / 渲染公式代码 / 联网搜索 / 预设Prompt集 / 实时Tokens显示</em>
+      <br/>
+      <a href="https://www.bilibili.com/video/BV1mo4y1r7eE"><strong>视频教程</strong></a>
+        ·
+      <a href="https://huggingface.co/spaces/JohnSmith9982/ChuanhuChatGPT"><strong>在线体验</strong></a>
+    </p>
     <p align="center">
       <img alt="Animation Demo" src="https://user-images.githubusercontent.com/51039745/223148794-f4fd2fcb-3e48-4cdf-a759-7aa463d3f14c.gif" />
     </p>
   </p>
 </div>
 
-
-## 重大更新 🎉🎉🎉
-
-- 像官方ChatGPT那样实时回复
-- 无限长度对话
-- 从互联网搜索结果
-- 将大段代码显示在代码块中
-- 渲染输出中的LaTex公式
-- 改进的保存/加载功能
-- 预设的Prompt集合
-
 ## 目录
-|[功能](#功能)|[使用技巧](#使用技巧)|[安装方式](#安装方式)|[疑难杂症解决](#疑难杂症解决)|
-|  ----  | ----  | ----  | ----  |
-
-
-## 功能
-- [x] 实时回复
-- [x] 重试对话，让ChatGPT再回答一次。
-- [x] 优化Tokens，减少Tokens占用，以支持更长的对话。
-- [x] 设置System Prompt，有效地设定前置条件
-- [x] 保存/加载对话历史记录
-- [x] 在图形界面中添加API key
-- [x] System Prompt模板功能，从预置的Prompt库中选择System Prompt
-- [x] 实时显示Tokens用量
+|[使用技巧](#使用技巧)|[安装方式](#安装方式)|[疑难杂症解决](#疑难杂症解决)| [给作者买可乐🥤](#捐款) |
+|  ----  | ----  | ----  | --- |
 
 ## 使用技巧
 
 - 使用System Prompt可以很有效地设定前提条件。
-- 对于长对话，可以使用“优化Tokens”按钮减少Tokens占用。
-- 输入框支持换行，按`shift enter`即可。
 - 使用Prompt模板功能时，选择Prompt模板集合文件，然后从下拉菜单中选择想要的prompt。
+- 如果回答不满意，可以使用`重新生成`按钮再试一次
+- 对于长对话，可以使用`优化Tokens`按钮减少Tokens占用。
+- 输入框支持换行，按`shift enter`即可。
 - 部署到服务器：将程序最后一句改成`demo.launch(server_name="0.0.0.0", server_port=<你的端口号>)`。
 - 获取公共链接：将程序最后一句改成`demo.launch(share=True)`。注意程序必须在运行，才能通过公共链接访问。
 - 在Hugging Face上使用：建议在右上角 **复制Space** 再使用，这样能大大减少排队时间，App反应也会更加迅速。
@@ -364,7 +345,7 @@ DOMAIN-SUFFIX,openai.com,你的代理规则
 > Expecting value: 1ine 1 column 1 (char o)
 > ```
 
-出现这个错误的原因是`127.0.0.1`被代理了，导致网页无法和后端通信。请设置代理软件，将`127.0.0.1`加入直连。
+出现这个错误的原因是`127.0.0.1`被代理了，导致网页无法和后端通信。请设置代理软件，将`127.0.0.1`加入直连（具体方法见上面“一直等待/SSL Error”部分）。
 </details>
 
 <details><summary><code>No matching distribution found for openai>=0.27.0</code></summary>
