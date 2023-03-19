@@ -23,8 +23,7 @@ from duckduckgo_search import ddg
 import datetime
 
 # logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s")
-# 代理地址配置
-proxies = {'http': "127.0.0.1:7891", 'https': "127.0.0.1:7891"}
+
 if TYPE_CHECKING:
     from typing import TypedDict
 
@@ -146,6 +145,10 @@ def get_response(
     response = requests.post(
         API_URL, headers=headers, json=payload, stream=True, timeout=timeout
     )
+    if response.status_code!=200:
+        print('响应状态码：',response.status_code,"内容：",response.content)
+    else:
+        print('响应状态码：',response.status_code)
     return response
 
 
