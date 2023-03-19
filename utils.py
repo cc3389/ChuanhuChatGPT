@@ -162,7 +162,6 @@ def get_response(
     if https_proxy:
         logging.info(f"Using HTTPS proxy: {https_proxy}")
         proxies["https"] = https_proxy
-
     # 如果有代理，使用代理发送请求，否则使用默认设置发送请求
     if proxies:
         response = requests.post(
