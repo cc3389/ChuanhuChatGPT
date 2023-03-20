@@ -15,7 +15,7 @@ from llama_index import (
     PromptHelper,
 )
 from pathlib import Path
-from docx import Document as DocxDocument
+# from docx import Document as DocxDocument
 from tqdm import tqdm
 import re
 from langchain.llms import OpenAIChat, OpenAI
