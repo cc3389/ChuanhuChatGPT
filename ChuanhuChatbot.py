@@ -50,13 +50,76 @@ else:
 
 gr.Chatbot.postprocess = postprocess
 
-with open("custom.css", "r") as f:
+with open("custom.css", "r", encoding="utf-8") as f:
     customCSS = f.read()
 
-with gr.Blocks(css=customCSS) as demo:
+with gr.Blocks(
+    css=customCSS,
+    theme=gr.themes.Soft(
+        primary_hue=gr.themes.Color(
+            c50="#02C160",
+            c100="rgba(2, 193, 96, 0.2)",
+            c200="#02C160",
+            c300="rgba(2, 193, 96, 0.32)",
+            c400="rgba(2, 193, 96, 0.32)",
+            c500="rgba(2, 193, 96, 1.0)",
+            c600="rgba(2, 193, 96, 1.0)",
+            c700="rgba(2, 193, 96, 0.32)",
+            c800="rgba(2, 193, 96, 0.32)",
+            c900="#02C160",
+            c950="#02C160",
+        ),
+        secondary_hue=gr.themes.Color(
+            c50="#576b95",
+            c100="#576b95",
+            c200="#576b95",
+            c300="#576b95",
+            c400="#576b95",
+            c500="#576b95",
+            c600="#576b95",
+            c700="#576b95",
+            c800="#576b95",
+            c900="#576b95",
+            c950="#576b95",
+        ),
+        neutral_hue=gr.themes.Color(
+            name="gray",
+            c50="#f9fafb",
+            c100="#f3f4f6",
+            c200="#e5e7eb",
+            c300="#d1d5db",
+            c400="#B2B2B2",
+            c500="#808080",
+            c600="#636363",
+            c700="#515151",
+            c800="#393939",
+            c900="#272727",
+            c950="#171717",
+        ),
+        radius_size=gr.themes.sizes.radius_sm,
+    ).set(
+        button_primary_background_fill="#06AE56",
+        button_primary_background_fill_dark="#06AE56",
+        button_primary_background_fill_hover="#07C863",
+        button_primary_border_color="#06AE56",
+        button_primary_border_color_dark="#06AE56",
+        button_primary_text_color="#FFFFFF",
+        button_primary_text_color_dark="#FFFFFF",
+        button_secondary_background_fill="#F2F2F2",
+        button_secondary_background_fill_dark="#2B2B2B",
+        button_secondary_text_color="#393939",
+        button_secondary_text_color_dark="#FFFFFF",
+        # background_fill_primary="#F7F7F7",
+        # background_fill_primary_dark="#1F1F1F",
+        block_title_text_color="*primary_500",
+        block_title_background_fill = "*primary_100",
+        input_background_fill="#F6F6F6",
+    ),
+) as demo:
     history = gr.State([])
     token_count = gr.State([])
     promptTemplates = gr.State(load_template(get_template_names(plain=True)[0], mode=2))
+    user_api_key = gr.State(my_api_key)
     TRUECOMSTANT = gr.State(True)
     FALSECONSTANT = gr.State(False)
     topic = gr.State("未命名对话历史记录")
@@ -68,14 +131,14 @@ with gr.Blocks(css=customCSS) as demo:
     with gr.Row(scale=1).style(equal_height=True):
         with gr.Column(scale=5):
             with gr.Row(scale=1):
-                chatbot = gr.Chatbot(elem_id="chuanhu_chatbot")
+                chatbot = gr.Chatbot(elem_id="chuanhu_chatbot").style(height="100%")
             with gr.Row(scale=1):
                 with gr.Column(scale=12):
                     user_input = gr.Textbox(
                         show_label=False, placeholder="在这里输入"
                     ).style(container=False)
-                with gr.Column(min_width=50, scale=1):
-                    submitBtn = gr.Button("🚀", variant="primary")
+                with gr.Column(min_width=70, scale=1):
+                    submitBtn = gr.Button("发送", variant="primary")
             with gr.Row(scale=1):
                 emptyBtn = gr.Button(
                     "🧹 新的对话",
@@ -90,7 +153,7 @@ with gr.Blocks(css=customCSS) as demo:
                     keyTxt = gr.Textbox(
                         show_label=True,
                         placeholder=f"OpenAI API-key...",
-                        value=my_api_key,
+                        value=hide_middle_chars(my_api_key),
                         type="password",
                         visible=not HIDE_MY_KEY,
                         label="API-Key",
@@ -184,7 +247,7 @@ with gr.Blocks(css=customCSS) as demo:
                         placeholder=f"在这里输入API地址...",
                         label="API地址",
                         value="https://api.openai.com/v1/chat/completions",
-                        lines=2
+                        lines=2,
                     )
                     changeAPIURLBtn = gr.Button("🔄 切换API地址")
                     proxyTxt = gr.Textbox(
@@ -192,18 +255,18 @@ with gr.Blocks(css=customCSS) as demo:
                         placeholder=f"在这里输入代理地址...",
                         label="代理地址（示例：http://127.0.0.1:10809）",
                         value="",
-                        lines=2
+                        lines=2,
                     )
                     changeProxyBtn = gr.Button("🔄 设置代理地址")
 
-
     gr.Markdown(description)
 
+    keyTxt.submit(submit_key, keyTxt, [user_api_key, status_display])
     # Chatbot
     user_input.submit(
         predict,
         [
-            keyTxt,
+            user_api_key,
             systemPromptTxt,
             history,
             user_input,
@@ -223,7 +286,7 @@ with gr.Blocks(css=customCSS) as demo:
     submitBtn.click(
         predict,
         [
-            keyTxt,
+            user_api_key,
             systemPromptTxt,
             history,
             user_input,
@@ -249,7 +312,7 @@ with gr.Blocks(css=customCSS) as demo:
     retryBtn.click(
         retry,
         [
-            keyTxt,
+            user_api_key,
             systemPromptTxt,
             history,
             chatbot,
@@ -273,7 +336,7 @@ with gr.Blocks(css=customCSS) as demo:
     reduceTokenBtn.click(
         reduce_token_size,
         [
-            keyTxt,
+            user_api_key,
             systemPromptTxt,
             history,
             chatbot,
@@ -331,10 +394,7 @@ with gr.Blocks(css=customCSS) as demo:
 
     # Advanced
     default_btn.click(
-        reset_default,
-        [],
-        [apiurlTxt, proxyTxt, status_display],
-        show_progress=True
+        reset_default, [], [apiurlTxt, proxyTxt, status_display], show_progress=True
     )
     changeAPIURLBtn.click(
         change_api_url,

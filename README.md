@@ -1,7 +1,7 @@
 <h1 align="center">川虎 ChatGPT 🐯 Chuanhu ChatGPT</h1>
 <div align="center">
   <a href="https://github.com/GaiZhenBiao/ChuanhuChatGPT">
-    <img src="https://user-images.githubusercontent.com/51039745/222689546-7612df0e-e28b-4693-9f5f-4ef2be3daf48.png" alt="Logo" height="156">
+    <img src="https://user-images.githubusercontent.com/70903329/226267132-e5295925-f53a-4e9d-a221-6099583da98d.png" alt="Logo" height="156">
   </a>
 
   <p align="center">
@@ -23,14 +23,14 @@
         <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/GaiZhenBiao/ChuanhuChatGPT?color=0088ff" />
       </a>
       <br/>
-      <em>实时回复 / 无限对话 / 保存对话记录 / 渲染公式代码 / 联网搜索 / 预设Prompt集 / 实时Tokens显示</em>
+      <em>实时回复 / 无限对话 / 保存对话记录 / 渲染公式代码表格 / 语法高亮 / 联网搜索 / 预设Prompt集 / 实时Tokens显示</em>
       <br/>
       <a href="https://www.bilibili.com/video/BV1mo4y1r7eE"><strong>视频教程</strong></a>
         ·
       <a href="https://huggingface.co/spaces/JohnSmith9982/ChuanhuChatGPT"><strong>在线体验</strong></a>
     </p>
     <p align="center">
-      <img alt="Animation Demo" src="https://user-images.githubusercontent.com/51039745/223148794-f4fd2fcb-3e48-4cdf-a759-7aa463d3f14c.gif" />
+      <img alt="Animation Demo" src="https://user-images.githubusercontent.com/51039745/226255695-6b17ff1f-ea8d-464f-b69b-a7b6b68fffe8.gif" />
     </p>
   </p>
 </div>
