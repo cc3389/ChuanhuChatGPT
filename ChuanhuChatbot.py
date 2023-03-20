@@ -159,7 +159,7 @@ with gr.Blocks(
                         value=hide_middle_chars(my_api_key),
                         type="password",
                         visible=not HIDE_MY_KEY,
-                        label="API-Key",
+                        label="API-Key(按Enter提交)",
                     )
                     model_select_dropdown = gr.Dropdown(
                         label="选择模型", choices=MODELS, multiselect=False, value=MODELS[0]
@@ -265,6 +265,7 @@ with gr.Blocks(
     gr.Markdown(description)
 
     keyTxt.submit(submit_key, keyTxt, [user_api_key, status_display])
+    keyTxt.change(submit_key, keyTxt, [user_api_key, status_display])
     # Chatbot
     user_input.submit(
         predict,

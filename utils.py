@@ -283,6 +283,7 @@ def hide_middle_chars(s):
 
 
 def submit_key(key):
+    key = key.strip()
     msg = f"API密钥更改为了{hide_middle_chars(key)}"
     logging.info(msg)
     return key, msg
@@ -290,12 +291,7 @@ def submit_key(key):
 
 def sha1sum(filename):
     sha1 = hashlib.sha1()
-    with open(filename, "rb") as f:
-        while True:
-            data = f.read(65536)
-            if not data:
-                break
-            sha1.update(data)
+    sha1.update(filename.encode("utf-8"))
     return sha1.hexdigest()
 
 

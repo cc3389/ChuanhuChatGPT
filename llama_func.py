@@ -107,7 +107,7 @@ def chat_ai(
 
     logging.info(f"Question: {question}")
 
-    response, status_text = ask_ai(
+    response, chatbot_display, status_text = ask_ai(
         api_key,
         index,
         question,
@@ -124,7 +124,7 @@ def chat_ai(
 
     context.append({"role": "user", "content": question})
     context.append({"role": "assistant", "content": response})
-    chatbot.append((question, response))
+    chatbot.append((question, chatbot_display))
 
     os.environ["OPENAI_API_KEY"] = ""
     return context, chatbot, status_text
@@ -167,19 +167,18 @@ def ask_ai(
     if response is not None:
         logging.info(f"Response: {response}")
         ret_text = response.response
-        ret_text += "\n----------\n"
         nodes = []
         for index, node in enumerate(response.source_nodes):
             brief = node.source_text[:25].replace("\n", "")
             nodes.append(
                 f"<details><summary>[{index+1}]\t{brief}...</summary><p>{node.source_text}</p></details>"
             )
-        ret_text += "\n\n".join(nodes)
+        new_response = ret_text + "\n----------\n" + "\n\n".join(nodes)
         logging.info(
             f"Response: {colorama.Fore.BLUE}{ret_text}{colorama.Style.RESET_ALL}"
         )
         os.environ["OPENAI_API_KEY"] = ""
-        return ret_text, f"查询消耗了{llm_predictor.last_token_usage} tokens"
+        return ret_text, new_response, f"查询消耗了{llm_predictor.last_token_usage} tokens"
     else:
         logging.warning("No response found, returning None")
         os.environ["OPENAI_API_KEY"] = ""
