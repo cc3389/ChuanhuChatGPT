@@ -1,3 +1,8 @@
+:root {
+    --chatbot-color-light: #F3F3F3;
+    --chatbot-color-dark: #121111;
+}
+
 /* status_display */
 #status_display {
     display: flex;
@@ -8,17 +13,12 @@
 #status_display p {
     font-size: .85em;
     font-family: monospace;
-    color: var(--text-color-subdued) !important;
+    color: var(--body-text-color-subdued);
 }
-/* chatbot */
-:root {
-    --bg-color-light: #F3F3F3;
-    --bg-color-dark: #121111;
-  }
-
+/* 亮色 */
 @media (prefers-color-scheme: light) {
     #chuanhu_chatbot {
-        background-color: var(--bg-color-light) !important;
+        background-color: var(--chatbot-color-light) !important;
     }
     [data-testid = "bot"] {
         background-color: #FFFFFF !important;
@@ -27,10 +27,10 @@
         background-color: #95EC69 !important;
     }
 }
-
+/* 暗色 */
 @media (prefers-color-scheme: dark) {
     #chuanhu_chatbot {
-        background-color: var(--bg-color-dark) !important;
+        background-color: var(--chatbot-color-dark) !important;
     }
     [data-testid = "bot"] {
         background-color: #2C2C2C !important;
@@ -38,10 +38,12 @@
     [data-testid = "user"] {
         background-color: #26B561 !important;
     }
+    body {
+        background-color: var(--neutral-950) !important;
+    }
 }
-
 /* 屏幕宽度大于等于500px的设备 */
-@media (min-width: 500px) {
+@media screen and (min-width: 500px) {
     #chuanhu_chatbot {
         height: calc(100vh - 200px);
     }
@@ -50,7 +52,7 @@
     }
 }
 /* 屏幕宽度小于500px的设备 */
-@media (max-width: 499px) {
+@media screen and (max-width: 499px) {
     #chuanhu_chatbot {
         height: calc(100vh - 140px);
     }
@@ -82,7 +84,7 @@ table {
     empty-cells: show;
 }
 td,th {
-    border: 1.2px solid var(--color-border-primary) !important;
+    border: 1.2px solid var(--border-color-primary) !important;
     padding: 0.2em;
 }
 thead {
