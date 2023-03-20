@@ -54,7 +54,7 @@ def postprocess(
             # None if message is None else markdown.markdown(message),
             # None if response is None else markdown.markdown(response),
             None if message is None else message,
-            None if response is None else mdtex2html.convert(response),
+            None if response is None else mdtex2html.convert(response, extensions=['fenced_code','codehilite','tables']),
         )
     return y
 
@@ -67,34 +67,19 @@ def count_token(message):
 
 
 def parse_text(text):
-    lines = text.split("\n")
-    lines = [line for line in lines if line != ""]
-    count = 0
-    for i, line in enumerate(lines):
-        if "```" in line:
-            count += 1
-            items = line.split("`")
-            if count % 2 == 1:
-                lines[i] = f'<pre><code class="language-{items[-1]}">'
-            else:
-                lines[i] = f"<br></code></pre>"
+    in_code_block = False
+    new_lines = []
+    for line in text.split("\n"):
+        if line.strip().startswith("```"):
+            in_code_block = not in_code_block
+        if in_code_block:
+            if line.strip() != "":
+                new_lines.append(line)
         else:
-            if i > 0:
-                if count % 2 == 1:
-                    line = line.replace("`", "\`")
-                    line = line.replace("<", "&lt;")
-                    line = line.replace(">", "&gt;")
-                    line = line.replace(" ", "&nbsp;")
-                    line = line.replace("*", "&ast;")
-                    line = line.replace("_", "&lowbar;")
-                    line = line.replace("-", "&#45;")
-                    line = line.replace(".", "&#46;")
-                    line = line.replace("!", "&#33;")
-                    line = line.replace("(", "&#40;")
-                    line = line.replace(")", "&#41;")
-                    line = line.replace("$", "&#36;")
-                lines[i] = "<br>" + line
-    text = "".join(lines)
+            new_lines.append(line)
+    if in_code_block:
+        new_lines.append("```")
+    text = "\n".join(new_lines)
     return text
 
 
@@ -674,3 +659,23 @@ def reset_state():
 
 def reset_textbox():
     return gr.update(value="")
+
+def reset_default():
+    global API_URL
+    API_URL = "https://api.openai.com/v1/chat/completions"
+    os.environ.pop("HTTPS_PROXY", None)
+    os.environ.pop("https_proxy", None)
+    return gr.update(value=API_URL), gr.update(value=""), "API URL 和代理已重置"
+
+def change_api_url(url):
+    global API_URL
+    API_URL = url
+    msg = f"API地址更改为了{url}"
+    logging.info(msg)
+    return msg
+
+def change_proxy(proxy):
+    os.environ["HTTPS_PROXY"] = proxy
+    msg = f"代理更改为了{proxy}"
+    logging.info(msg)
+    return msg
