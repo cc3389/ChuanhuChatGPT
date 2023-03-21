@@ -1,17 +1,17 @@
 # -*- coding:utf-8 -*-
-import gradio as gr
 import os
 import logging
 import sys
-import argparse
 
-from chat_func import predict, retry, reduce_token_size
-from overwrites import postprocess
+import gradio as gr
+
 from utils import *
 from presets import *
+from overwrites import *
+from chat_func import *
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format="%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s",
 )
 
@@ -52,6 +52,7 @@ else:
                 authflag = True
 
 gr.Chatbot.postprocess = postprocess
+PromptHelper.compact_text_chunks = compact_text_chunks
 
 with open("custom.css", "r", encoding="utf-8") as f:
     customCSS = f.read()
@@ -115,7 +116,7 @@ with gr.Blocks(
         # background_fill_primary="#F7F7F7",
         # background_fill_primary_dark="#1F1F1F",
         block_title_text_color="*primary_500",
-        block_title_background_fill = "*primary_100",
+        block_title_background_fill="*primary_100",
         input_background_fill="#F6F6F6",
     ),
 ) as demo:
@@ -129,7 +130,7 @@ with gr.Blocks(
 
     with gr.Row():
         gr.HTML(title)
-        status_display = gr.Markdown("status: ready", elem_id="status_display")
+        status_display = gr.Markdown(get_geoip(), elem_id="status_display")
 
     with gr.Row(scale=1).style(equal_height=True):
         with gr.Column(scale=5):
@@ -168,7 +169,7 @@ with gr.Blocks(
                         label="实时传输回答", value=True, visible=enable_streaming_option
                     )
                     use_websearch_checkbox = gr.Checkbox(label="使用在线搜索", value=False)
-                    index_files = gr.File(label="上传索引文件", type="file", multiple=True)
+                    index_files = gr.Files(label="上传索引文件", type="file", multiple=True)
 
                 with gr.Tab(label="Prompt"):
                     systemPromptTxt = gr.Textbox(
@@ -177,7 +178,7 @@ with gr.Blocks(
                         label="System prompt",
                         value=initial_prompt,
                         lines=10,
-                    ).style(container=True)
+                    ).style(container=False)
                     with gr.Accordion(label="加载Prompt模板", open=True):
                         with gr.Column():
                             with gr.Row():
@@ -187,12 +188,21 @@ with gr.Blocks(
                                         choices=get_template_names(plain=True),
                                         multiselect=False,
                                         value=get_template_names(plain=True)[0],
-                                    )
+                                    ).style(container=False)
                                 with gr.Column(scale=1):
                                     templateRefreshBtn = gr.Button("🔄 刷新")
                             with gr.Row():
                                 with gr.Column():
-                                    templateSelectDropdown = gr.Dropdown(label="从Prompt模板中加载", choices=load_template(get_template_names(plain=True)[0], mode=1), multiselect=False, value=load_template(get_template_names(plain=True)[0], mode=1)[0])
+                                    templateSelectDropdown = gr.Dropdown(
+                                        label="从Prompt模板中加载",
+                                        choices=load_template(
+                                            get_template_names(plain=True)[0], mode=1
+                                        ),
+                                        multiselect=False,
+                                        value=load_template(
+                                            get_template_names(plain=True)[0], mode=1
+                                        )[0],
+                                    ).style(container=False)
 
                 with gr.Tab(label="保存/加载"):
                     with gr.Accordion(label="保存/加载对话历史记录", open=True):
@@ -234,7 +244,7 @@ with gr.Blocks(
                             value=1.0,
                             step=0.05,
                             interactive=True,
-                            label="Top-p (nucleus sampling)",
+                            label="Top-p",
                         )
                         temperature = gr.Slider(
                             minimum=-0,
@@ -281,6 +291,7 @@ with gr.Blocks(
             use_streaming_checkbox,
             model_select_dropdown,
             use_websearch_checkbox,
+            index_files,
         ],
         [chatbot, history, status_display, token_count],
         show_progress=True,
@@ -301,6 +312,7 @@ with gr.Blocks(
             use_streaming_checkbox,
             model_select_dropdown,
             use_websearch_checkbox,
+            index_files,
         ],
         [chatbot, history, status_display, token_count],
         show_progress=True,
@@ -439,7 +451,3 @@ if __name__ == "__main__":
             demo.queue().launch(server_name="0.0.0.0", server_port=7860, share=False) # 可自定义端口
         #demo.queue().launch(server_name="0.0.0.0", server_port=7860,auth=("在这里填写用户名", "在这里填写密码")) # 可设置用户名与密码
         #demo.queue().launch(auth=("在这里填写用户名", "在这里填写密码")) # 适合Nginx反向代理
-
-
-
-

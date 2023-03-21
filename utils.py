@@ -7,6 +7,8 @@ import os
 import datetime
 import hashlib
 import csv
+import requests
+import re
 
 import gradio as gr
 from pypinyin import lazy_pinyin
@@ -30,12 +32,6 @@ if TYPE_CHECKING:
         data: List[List[str | int | bool]]
 
 
-initial_prompt = "You are a helpful assistant."
-API_URL = "https://api.openai.com/v1/chat/completions"
-HISTORY_DIR = "history"
-TEMPLATES_DIR = "templates"
-
-
 def count_token(message):
     encoding = tiktoken.get_encoding("cl100k_base")
     input_str = f"role: {message['role']}, content: {message['content']}"
@@ -45,11 +41,23 @@ def count_token(message):
 
 def parse_text(text):
     in_code_block = False
+    in_list = False
     new_lines = []
     for line in text.split("\n"):
         if line.strip().startswith("```"):
             in_code_block = not in_code_block
+        else:
+            if re.match(r'(\*|-|\d+\.)\s', line):
+                if not in_list:
+                    in_list = True
+            elif in_list and line.strip() != "":
+                in_list = False
+                new_lines.append("")
+
         if in_code_block:
+            if line.strip() != "":
+                new_lines.append(line)
+        elif in_list:
             if line.strip() != "":
                 new_lines.append(line)
         else:
@@ -298,3 +306,21 @@ def sha1sum(filename):
 def replace_today(prompt):
     today = datetime.datetime.today().strftime("%Y-%m-%d")
     return prompt.replace("{current_date}", today)
+
+def get_geoip():
+    response = requests.get('https://ipapi.co/json/', timeout=5)
+    data = response.json()
+    if "error" in data.keys():
+        logging.warning(f"无法获取IP地址信息。\n{data}")
+        if data['reason'] == "RateLimited":
+            return f"获取IP地理位置失败，因为达到了检测IP的速率限制。聊天功能可能仍然可用，但请注意，如果您的IP地址在不受支持的地区，您可能会遇到问题。"
+        else:
+            return f"获取IP地理位置失败。原因：{data['reason']}"
+    else:
+        country = data['country_name']
+        if country == "China":
+            text = "**您的IP区域：中国。请立即检查代理设置，在不受支持的地区使用API可能导致账号被封禁。**"
+        else:
+            text = f"您的IP区域：{country}。"
+        logging.info(text)
+        return text
