@@ -22,11 +22,15 @@
       <a href="https://github.com/GaiZhenBiao/ChuanhuChatGPT/pulls">
         <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/GaiZhenBiao/ChuanhuChatGPT?color=0088ff" />
       </a>
-      <br/>
-      <em>实时回复 / 无限对话 / 保存对话记录 / 渲染公式代码表格 / 语法高亮 / 联网搜索 / 预设Prompt集 / Chat 任何文件</em>
-      <br/>
+      <p>
+      	实时回复 / 无限对话 / 保存对话记录 / 预设Prompt集 / 联网搜索 / 根据文件回答
+      	<br/>
+      	渲染LaTex / 渲染表格 / 渲染代码 / 代码高亮 / 自定义api-URL / “小而美”的体验 / Ready for GPT-4
+      </p>
       <a href="https://www.bilibili.com/video/BV1mo4y1r7eE"><strong>视频教程</strong></a>
         ·
+      <a href="https://www.bilibili.com/video/BV1184y1w7aP"><strong>2.0介绍视频</strong></a>
+	·
       <a href="https://huggingface.co/spaces/JohnSmith9982/ChuanhuChatGPT"><strong>在线体验</strong></a>
     </p>
     <p align="center">
@@ -48,10 +52,22 @@
 - 输入框支持换行，按`shift enter`即可。
 - 部署到服务器：将程序最后一句改成`demo.launch(server_name="0.0.0.0", server_port=<你的端口号>)`。
 - 获取公共链接：将程序最后一句改成`demo.launch(share=True)`。注意程序必须在运行，才能通过公共链接访问。
-- 在Hugging Face上使用：建议在右上角 **复制Space** 再使用，这样能大大减少排队时间，App反应也会更加迅速。
-  <img width="300" alt="image" src="https://user-images.githubusercontent.com/51039745/223447310-e098a1f2-0dcf-48d6-bcc5-49472dd7ca0d.png">
+- 在Hugging Face上使用：建议在右上角 **复制Space** 再使用，这样
+
 
 ## 安装方式
+
+### 直接在Hugging Face上部署
+
+访问[本项目的Hugging Face页面](https://huggingface.co/spaces/JohnSmith9982/ChuanhuChatGPT)，点击右上角的 **复制Space** ，新建一个私人空间。然后就直接可以开始使用啦！放心，这是免费的。
+
+注意不要直接使用我的Space，否则排队速度会很漫长。在你的私人空间里使用能大大减少排队时间，App反应也会更加迅速。
+
+ <img width="300" alt="image" src="https://user-images.githubusercontent.com/51039745/223447310-e098a1f2-0dcf-48d6-bcc5-49472dd7ca0d.png">
+
+ Hugging Face的优点：免费，无需配置代理，部署容易（甚至不需要电脑）。
+
+ Hugging Face的缺点：不支持某些样式。
 
 ### 本地部署
 
@@ -62,6 +78,8 @@
 	cd ChuanhuChatGPT
 	```
 	或者，点击网页右上角的 `Download ZIP`，下载并解压完成后进入文件夹，进入`终端`或`命令提示符`。
+
+	如果你使用Windows，应该在文件夹里按住`shift`右键，选择“在终端中打开”。如果没有这个选项，选择“在此处打开Powershell窗口”。如果你使用macOS，可以在Finder底部的路径栏中右键当前文件夹，选择`服务-新建位于文件夹位置的终端标签页`。
 
 	<img width="200" alt="downloadZIP" src="https://user-images.githubusercontent.com/23137268/223696317-b89d2c71-c74d-4c6d-8060-a21406cfb8c8.png">
 
@@ -101,6 +119,8 @@
 
 3. **安装依赖**
 
+	在终端中输入下面的命令，然后回车。
+
 	```shell
 	pip install -r requirements.txt
 	```
@@ -116,6 +136,8 @@
 	如果下载慢，建议[配置清华源](https://mirrors.tuna.tsinghua.edu.cn/help/pypi/)，或者科学上网。
 
 4. **启动**
+
+	请使用下面的命令。
 
 	```shell
 	python ChuanhuChatbot.py
@@ -302,6 +324,37 @@ pip install gradio --upgrade --force-reinstall
 
 ### 常见问题
 
+<details><summary>配置代理</summary>
+
+OpenAI不允许在不受支持的地区使用API，否则可能会导致账号被风控。下面给出代理配置示例：
+
+在Clash配置文件中，加入：
+
+```
+rule-providers:
+  private:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/lancidr.txt"
+    path: ./ruleset/ads.yaml
+    interval: 86400
+
+rules:
+ - RULE-SET,private,DIRECT
+ - DOMAIN-SUFFIX,openai.com,你的代理规则
+```
+
+如果你使用 Surge，请在配置文件中加入：
+
+```
+[Rule]
+DOMAIN-SET,https://cdn.jsdelivr.net/gh/Loyalsoldier/surge-rules@release/private.txt,DIRECT
+DOMAIN-SUFFIX,openai.com,你的代理规则
+```
+注意，如果你本来已经有对应的字段，请将这些规则合并到已有字段中，否则代理软件会报错。
+
+</details>
+
 <details><summary><code>TypeError: Base.set () got an unexpected keyword argument</code></summary>
 
 这是因为川虎ChatGPT紧跟Gradio发展步伐，你的Gradio版本太旧了。请升级依赖：
@@ -363,31 +416,8 @@ pip install urllib3==1.25.11
 > requests.exceptions.SSLError: HTTPSConnectionPool(host='api.openai.com', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, 'EOF occurred in violation of protocol (_ssl.c:1129)')))
 > ```
 
-请将`openai.com`加入你使用的代理App的代理规则。注意不要将`127.0.0.1`加入代理，否则会有下一个错误。
+请参考配置代理部分，将`openai.com`加入你使用的代理App的代理规则。注意不要将`127.0.0.1`加入代理，否则会有下一个错误。
 
-例如，在Clash配置文件中，加入：
-
-```
-rule-providers:
-  private:
-    type: http
-    behavior: domain
-    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/lancidr.txt"
-    path: ./ruleset/ads.yaml
-    interval: 86400
-
-rules:
- - RULE-SET,private,DIRECT
- - DOMAIN-SUFFIX,openai.com,你的代理规则
-```
-
-Surge：
-
-```
-[Rule]
-DOMAIN-SET,https://cdn.jsdelivr.net/gh/Loyalsoldier/surge-rules@release/private.txt,DIRECT
-DOMAIN-SUFFIX,openai.com,你的代理规则
-```
 </details>
 
 <details><summary><code>网页提示错误 Something went wrong</code></summary>

@@ -13,6 +13,11 @@ import re
 import gradio as gr
 from pypinyin import lazy_pinyin
 import tiktoken
+import mdtex2html
+from markdown import markdown
+from pygments import highlight
+from pygments.lexers import get_lexer_by_name
+from pygments.formatters import HtmlFormatter
 
 from presets import *
 import tiktoken
@@ -39,33 +44,84 @@ def count_token(message):
     return length
 
 
-def parse_text(text):
-    in_code_block = False
-    in_list = False
-    new_lines = []
-    for line in text.split("\n"):
-        if line.strip().startswith("```"):
-            in_code_block = not in_code_block
-        else:
-            if re.match(r'(\*|-|\d+\.)\s', line):
-                if not in_list:
-                    in_list = True
-            elif in_list and line.strip() != "":
-                in_list = False
-                new_lines.append("")
+def markdown_to_html_with_syntax_highlight(md_str):
+    def replacer(match):
+        lang = match.group(1) or "text"
+        code = match.group(2)
 
-        if in_code_block:
-            if line.strip() != "":
-                new_lines.append(line)
-        elif in_list:
-            if line.strip() != "":
-                new_lines.append(line)
+        try:
+            lexer = get_lexer_by_name(lang, stripall=True)
+        except ValueError:
+            lexer = get_lexer_by_name("text", stripall=True)
+
+        formatter = HtmlFormatter()
+        highlighted_code = highlight(code, lexer, formatter)
+
+        return f'<pre><code class="{lang}">{highlighted_code}</code></pre>'
+
+    code_block_pattern = r"```(\w+)?\n([\s\S]+?)\n```"
+    md_str = re.sub(code_block_pattern, replacer, md_str, flags=re.MULTILINE)
+
+    html_str = markdown(md_str)
+    return html_str
+
+
+def normalize_markdown(md_text: str) -> str:
+    lines = md_text.split("\n")
+    normalized_lines = []
+    inside_list = False
+
+    for i, line in enumerate(lines):
+        if re.match(r"^(\d+\.|-|\*|\+)\s", line.strip()):
+            if not inside_list and i > 0 and lines[i - 1].strip() != "":
+                normalized_lines.append("")
+            inside_list = True
+            normalized_lines.append(line)
+        elif inside_list and line.strip() == "":
+            if i < len(lines) - 1 and not re.match(
+                r"^(\d+\.|-|\*|\+)\s", lines[i + 1].strip()
+            ):
+                normalized_lines.append(line)
+            continue
         else:
-            new_lines.append(line)
-    if in_code_block:
-        new_lines.append("```")
-    text = "\n".join(new_lines)
-    return text
+            inside_list = False
+            normalized_lines.append(line)
+
+    return "\n".join(normalized_lines)
+
+
+def convert_mdtext(md_text):
+    code_block_pattern = re.compile(r"```(.*?)(?:```|$)", re.DOTALL)
+    inline_code_pattern = re.compile(r"`(.*?)`", re.DOTALL)
+    code_blocks = code_block_pattern.findall(md_text)
+    non_code_parts = code_block_pattern.split(md_text)[::2]
+
+    result = []
+    for non_code, code in zip(non_code_parts, code_blocks + [""]):
+        if non_code.strip():
+            non_code = normalize_markdown(non_code)
+            if inline_code_pattern.search(non_code):
+                result.append(markdown(non_code, extensions=["tables"]))
+            else:
+                result.append(mdtex2html.convert(non_code, extensions=["tables"]))
+        if code.strip():
+            # _, code = detect_language(code)  # 暂时去除代码高亮功能，因为在大段代码的情况下会出现问题
+            # code = code.replace("\n\n", "\n") # 暂时去除代码中的空行，因为在大段代码的情况下会出现问题
+            code = f"```{code}\n\n```"
+            code = markdown_to_html_with_syntax_highlight(code)
+            result.append(code)
+    result = "".join(result)
+    return result
+
+
+def detect_language(code):
+    if code.startswith("\n"):
+        first_line = ""
+    else:
+        first_line = code.strip().split("\n", 1)[0]
+    language = first_line.lower() if first_line else ""
+    code_without_language = code[len(first_line) :].lstrip() if first_line else code
+    return language, code_without_language
 
 
 def construct_text(role, text):
@@ -307,20 +363,40 @@ def replace_today(prompt):
     today = datetime.datetime.today().strftime("%Y-%m-%d")
     return prompt.replace("{current_date}", today)
 
+
 def get_geoip():
-    response = requests.get('https://ipapi.co/json/', timeout=5)
-    data = response.json()
+    response = requests.get("https://ipapi.co/json/", timeout=5)
+    try:
+        data = response.json()
+    except:
+        data = {"error": True, "reason": "连接ipapi失败"}
     if "error" in data.keys():
         logging.warning(f"无法获取IP地址信息。\n{data}")
-        if data['reason'] == "RateLimited":
-            return f"获取IP地理位置失败，因为达到了检测IP的速率限制。聊天功能可能仍然可用，但请注意，如果您的IP地址在不受支持的地区，您可能会遇到问题。"
+        if data["reason"] == "RateLimited":
+            return (
+                f"获取IP地理位置失败，因为达到了检测IP的速率限制。聊天功能可能仍然可用，但请注意，如果您的IP地址在不受支持的地区，您可能会遇到问题。"
+            )
         else:
-            return f"获取IP地理位置失败。原因：{data['reason']}"
+            return f"获取IP地理位置失败。原因：{data['reason']}。你仍然可以使用聊天功能。"
     else:
-        country = data['country_name']
+        country = data["country_name"]
         if country == "China":
             text = "**您的IP区域：中国。请立即检查代理设置，在不受支持的地区使用API可能导致账号被封禁。**"
         else:
             text = f"您的IP区域：{country}。"
         logging.info(text)
         return text
+
+
+def find_n(lst, max_num):
+    n = len(lst)
+    total = sum(lst)
+
+    if total < max_num:
+        return n
+
+    for i in range(len(lst)):
+        if total - lst[i] < max_num:
+            return n - i -1
+        total = total - lst[i]
+    return 1

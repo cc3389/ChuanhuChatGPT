@@ -115,9 +115,9 @@ def stream_predict(
     history.append(construct_user(inputs))
     history.append(construct_assistant(""))
     if fake_input:
-        chatbot.append((parse_text(fake_input), ""))
+        chatbot.append((fake_input, ""))
     else:
-        chatbot.append((parse_text(inputs), ""))
+        chatbot.append((inputs, ""))
     user_token_count = 0
     if len(all_token_counts) == 0:
         system_prompt_token_count = count_token(construct_system(system_prompt))
@@ -192,7 +192,7 @@ def stream_predict(
                     yield get_return_value()
                     break
                 history[-1] = construct_assistant(partial_words)
-                chatbot[-1] = (chatbot[-1][0], parse_text(partial_words+display_append))
+                chatbot[-1] = (chatbot[-1][0], partial_words+display_append)
                 all_token_counts[-1] += 1
                 yield get_return_value()
 
@@ -214,9 +214,9 @@ def predict_all(
     history.append(construct_user(inputs))
     history.append(construct_assistant(""))
     if fake_input:
-        chatbot.append((parse_text(fake_input), ""))
+        chatbot.append((fake_input, ""))
     else:
-        chatbot.append((parse_text(inputs), ""))
+        chatbot.append((inputs, ""))
     all_token_counts.append(count_token(construct_user(inputs)))
     try:
         response = get_response(
@@ -242,7 +242,7 @@ def predict_all(
     response = json.loads(response.text)
     content = response["choices"][0]["message"]["content"]
     history[-1] = construct_assistant(content)
-    chatbot[-1] = (chatbot[-1][0], parse_text(content+display_append))
+    chatbot[-1] = (chatbot[-1][0], content+display_append)
     total_token_count = response["usage"]["total_tokens"]
     all_token_counts[-1] = total_token_count - sum(all_token_counts)
     status_text = construct_token_message(total_token_count)
@@ -299,7 +299,7 @@ def predict(
     if len(openai_api_key) != 51:
         status_text = standard_error_msg + no_apikey_msg
         logging.info(status_text)
-        chatbot.append((parse_text(inputs), ""))
+        chatbot.append((inputs, ""))
         if len(history) == 0:
             history.append(construct_user(inputs))
             history.append("")
@@ -371,9 +371,8 @@ def predict(
             all_token_counts,
             top_p,
             temperature,
-            stream=False,
+            max_token//2,
             selected_model=selected_model,
-            hidden=True,
         )
         for chatbot, history, status_text, all_token_counts in iter:
             status_text = f"Token 达到上限，已自动降低Token计数至 {status_text}"
@@ -410,9 +409,10 @@ def retry(
         stream=stream,
         selected_model=selected_model,
     )
-    logging.info("重试完毕")
+    logging.info("重试中……")
     for x in iter:
         yield x
+    logging.info("重试完毕")
 
 
 def reduce_token_size(
@@ -423,9 +423,8 @@ def reduce_token_size(
     token_count,
     top_p,
     temperature,
-    stream=False,
+    max_token_count,
     selected_model=MODELS[0],
-    hidden=False,
 ):
     logging.info("开始减少token数量……")
     iter = predict(
@@ -437,17 +436,21 @@ def reduce_token_size(
         token_count,
         top_p,
         temperature,
-        stream=stream,
         selected_model=selected_model,
         should_check_token_count=False,
     )
     logging.info(f"chatbot: {chatbot}")
+    flag = False
     for chatbot, history, status_text, previous_token_count in iter:
-        history = history[-2:]
-        token_count = previous_token_count[-1:]
-        if hidden:
-            chatbot.pop()
-        yield chatbot, history, construct_token_message(
-            sum(token_count), stream=stream
+        num_chat = find_n(previous_token_count, max_token_count)
+        if flag:
+            chatbot = chatbot[:-1]
+        flag = True
+        history = history[-2*num_chat:] if num_chat > 0 else []
+        token_count = previous_token_count[-num_chat:] if num_chat > 0 else []
+        msg = f"保留了最近{num_chat}轮对话"
+        yield chatbot, history, msg + "，" + construct_token_message(
+            sum(token_count) if len(token_count) > 0 else 0,
         ), token_count
+    logging.info(msg)
     logging.info("减少token数量完毕")

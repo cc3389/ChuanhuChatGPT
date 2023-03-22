@@ -359,7 +359,7 @@ with gr.Blocks(
             token_count,
             top_p,
             temperature,
-            use_streaming_checkbox,
+            gr.State(0),
             model_select_dropdown,
         ],
         [chatbot, history, status_display, token_count],
@@ -438,14 +438,15 @@ if __name__ == "__main__":
     if dockerflag:
         if authflag:
             demo.queue().launch(
-                server_name="0.0.0.0", server_port=7860, auth=(username, password)
+                server_name="0.0.0.0", server_port=7860, auth=(username, password),
+                favicon_path="./assets/favicon.png"
             )
         else:
-            demo.queue().launch(server_name="0.0.0.0", server_port=7860, share=False)
+            demo.queue().launch(server_name="0.0.0.0", server_port=7860, share=False, favicon_path="./assets/favicon.png")
     # if not running in Docker
     else:
         if authflag:
-            demo.queue().launch(share=False, auth=(username, password))
+            demo.queue().launch(share=False, auth=(username, password), favicon_path="./assets/favicon.png", inbrowser=True)
         else:
            # demo.queue().launch(share=False) # 改为 share=True 可以创建公开分享链接
             demo.queue().launch(server_name="0.0.0.0", server_port=7860, share=False) # 可自定义端口
