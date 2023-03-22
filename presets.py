@@ -15,9 +15,9 @@ proxy_error_prompt = "代理错误，无法获取对话。"  # 代理错误
 ssl_error_prompt = "SSL错误，无法获取对话。"  # SSL 错误
 no_apikey_msg = "API key长度不是51位，请检查是否输入正确。"  # API key 长度不足 51 位
 
-max_token_streaming = 3500 # 流式对话时的最大 token 数
-timeout_streaming = 40 # 流式对话时的超时时间
-max_token_all = 3500 # 非流式对话时的最大 token 数
+max_token_streaming = 4000 # 流式对话时的最大 token 数
+timeout_streaming = 30 # 流式对话时的超时时间
+max_token_all = 4000 # 非流式对话时的最大 token 数
 timeout_all = 200 # 非流式对话时的超时时间
 enable_streaming_option = True  # 是否启用选择选择是否实时显示回答的勾选框
 HIDE_MY_KEY = False  # 如果你想在UI中隐藏你的 API 密钥，将此值设置为 True
