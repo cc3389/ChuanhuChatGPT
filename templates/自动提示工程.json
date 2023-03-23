@@ -1,0 +1,14 @@
+[
+  {
+    "act": "1生成提示",
+    "prompt": "作家被给出了这个指示#{request}#，作家写出的段落为：##start##  ##end##。请根据写出的段落，给出#{request}#。用中文回复我。Let's work this out it a step by step to be sure we have the right answer."
+  },
+  {
+    "act": "3检验提示",
+    "prompt": "写一篇小说，要求...。Let's work this out it a step by step to be sure we have the right answer."
+  },
+  {
+    "act": "2生成相似提示",
+    "prompt": "请生成一系列与下列指示相同语义的指示："
+  }
+ ]
