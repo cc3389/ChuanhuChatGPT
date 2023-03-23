@@ -1,7 +1,7 @@
 <h1 align="center">川虎 ChatGPT 🐯 Chuanhu ChatGPT</h1>
 <div align="center">
   <a href="https://github.com/GaiZhenBiao/ChuanhuChatGPT">
-    <img src="https://user-images.githubusercontent.com/70903329/226267132-e5295925-f53a-4e9d-a221-6099583da98d.png" alt="Logo" height="156">
+    <img src="https://user-images.githubusercontent.com/70903329/227087087-93b37d64-7dc3-4738-a518-c1cf05591c8a.png" alt="Logo" height="156">
   </a>
 
   <p align="center">
@@ -30,8 +30,10 @@
       <a href="https://www.bilibili.com/video/BV1mo4y1r7eE"><strong>视频教程</strong></a>
         ·
       <a href="https://www.bilibili.com/video/BV1184y1w7aP"><strong>2.0介绍视频</strong></a>
-	·
+	||
       <a href="https://huggingface.co/spaces/JohnSmith9982/ChuanhuChatGPT"><strong>在线体验</strong></a>
+      	·
+      <a href="https://huggingface.co/login?next=%2Fspaces%2FJohnSmith9982%2FChuanhuChatGPT%3Fduplicate%3Dtrue"><strong>一键部署</strong></a>
     </p>
     <p align="center">
       <img alt="Animation Demo" src="https://user-images.githubusercontent.com/51039745/226255695-6b17ff1f-ea8d-464f-b69b-a7b6b68fffe8.gif" />
@@ -59,9 +61,9 @@
 
 ### 直接在Hugging Face上部署
 
-访问[本项目的Hugging Face页面](https://huggingface.co/spaces/JohnSmith9982/ChuanhuChatGPT)，点击右上角的 **复制Space** ，新建一个私人空间。然后就直接可以开始使用啦！放心，这是免费的。
+访问[本项目的Hugging Face页面](https://huggingface.co/spaces/JohnSmith9982/ChuanhuChatGPT)，点击右上角的 **Duplicate Space** （复制空间），新建一个私人空间。然后就直接可以开始使用啦！放心，这是免费的。
 
-注意不要直接使用我的Space，否则排队速度会很漫长。在你的私人空间里使用能大大减少排队时间，App反应也会更加迅速。
+您可以直接使用我的空间，这样能实时享受到最新功能。您也可以将项目复制为私人空间里使用，这样App反应可能会快一点。
 
  <img width="300" alt="image" src="https://user-images.githubusercontent.com/51039745/223447310-e098a1f2-0dcf-48d6-bcc5-49472dd7ca0d.png">
 
@@ -351,6 +353,9 @@ rules:
 DOMAIN-SET,https://cdn.jsdelivr.net/gh/Loyalsoldier/surge-rules@release/private.txt,DIRECT
 DOMAIN-SUFFIX,openai.com,你的代理规则
 ```
+
+另外，强烈建议打开Clash的TUN模式（Surge的增强模式），否则终端流量可能不会走代理。或者，你也可以配置HTTPS_PROXY这个环境变量，川虎ChatGPT会自动从环境变量中获取代理配置。
+
 注意，如果你本来已经有对应的字段，请将这些规则合并到已有字段中，否则代理软件会报错。
 
 </details>
@@ -447,6 +452,6 @@ pip install urllib3==1.25.11
 
 ## 捐款
 
-🐯请作者喝可乐～
+🐯如果觉得这个软件对你有所帮助，欢迎请作者喝可乐、喝咖啡～
 
-<img width="350" alt="image" src="https://user-images.githubusercontent.com/51039745/223626874-f471e5f5-8a06-43d5-aa31-9d2575b6f631.JPG">
+<img width="250" alt="image" src="https://user-images.githubusercontent.com/51039745/226920291-e8ec0b0a-400f-4c20-ac13-dafac0c3aeeb.JPG">

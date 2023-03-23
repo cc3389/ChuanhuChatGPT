@@ -113,6 +113,9 @@ def convert_mdtext(md_text):
     result = "".join(result)
     return result
 
+def convert_user(userinput):
+    userinput = userinput.replace("\n", "<br>")
+    return f"<pre>{userinput}</pre>"
 
 def detect_language(code):
     if code.startswith("\n"):
@@ -400,3 +403,10 @@ def find_n(lst, max_num):
             return n - i -1
         total = total - lst[i]
     return 1
+
+def return_cancel_btn():
+    return gr.Button.update(
+        visible=False
+    ), gr.Button.update(
+        visible=True
+    )
