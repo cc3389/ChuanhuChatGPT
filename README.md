@@ -69,9 +69,9 @@
 
  Hugging Face的优点：免费，无需配置代理，部署容易（甚至不需要电脑）。
 
- Hugging Face的缺点：不支持某些样式。
+ Hugging Face的缺点：不支持某些界面样式。
 
-### 本地部署
+### 手动本地部署
 
 1. **下载本项目**
 
@@ -157,6 +157,17 @@
 如果一切顺利，现在，你应该已经可以在浏览器地址栏中输入 [`http://localhost:7860`](http://localhost:7860) 查看并使用 ChuanhuChatGPT 了。
 
 **如果你在安装过程中碰到了问题，请先查看[疑难杂症解决](#疑难杂症解决)部分。**
+
+### 自动更新
+
+你可以通过本项目提供的脚本检测仓库是否有更新，如果有，则拉取最新脚本、安装依赖、重启服务器。此功能支持`Linux`和`macOS`系统。
+
+如果你想运行，只需要运行`run_Linux.sh`或者`run_macOS`。如果你还想保持最新版本，只需要定时运行脚本。例如，在crontab中加入下面的内容：
+
+```
+*/20 * * * * /path/to/ChuanhuChatGPT/run_Linux.sh
+```
+就可以每20分钟检查一次脚本更新，如果有更新，则自动拉取并重启服务器。
 
 ### 使用Docker运行
 
@@ -357,6 +368,22 @@ DOMAIN-SUFFIX,openai.com,你的代理规则
 另外，强烈建议打开Clash的TUN模式（Surge的增强模式），否则终端流量可能不会走代理。或者，你也可以配置HTTPS_PROXY这个环境变量，川虎ChatGPT会自动从环境变量中获取代理配置。
 
 注意，如果你本来已经有对应的字段，请将这些规则合并到已有字段中，否则代理软件会报错。
+
+</details>
+
+<details><summary>找不要依赖项(No matching distribution found for tiktoken)</summary>
+
+这种情况是因为你使用的`pip`源中没有这个包。pypi的镜像源（比如清华源）的更新可能没有官方源那么及时。如果遇到了这种情况，建议换用pypi的官方源：
+
+临时换用官方源：
+```
+pip install tiktoken -i https://pypi.org/simple
+```
+
+或者永久替换为官方源：
+```
+pip config set global.index-url https://pypi.org/simple
+```
 
 </details>
 
