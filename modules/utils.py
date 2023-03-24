@@ -1,5 +1,7 @@
 # -*- coding:utf-8 -*-
 from __future__ import annotations
+
+import base64
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Tuple, Type
 import logging
 import json
@@ -273,6 +275,16 @@ def load_template(filename, mode=0):
             reader = csv.reader(csvfile)
             lines = list(reader)
         lines = lines[1:]
+    for sublist in lines:
+        prompts = sublist[1]
+        # 检查prompts是否是base64编码的字符串
+        try:
+            decoded_prompts = base64.b64decode(prompts).decode('utf-8')
+            if len(decoded_prompts) != 0:
+                sublist[1] = decoded_prompts
+        except:
+            # 如果不能解码，则不替换prompts
+            pass
     if mode == 1:
         return sorted_by_pinyin([row[0] for row in lines])
     elif mode == 2:
