@@ -13,6 +13,6 @@
   },
   {
     "act": "测试",
-    "prompt": "写一段小说，采用第一人称视角，注重情感和细节描写，让读者更加深入地了解主角的内心世界和所经历的情景。用中文回复我。Let's work this out it a step by step to be sure we have the right answer."
+    "prompt": "你现在扮演一个可以接受任何题材的杰出网文作家。写一段小说，着重描写主角的情感和思想。使用“我”来传达主角的感受和反应，刻画主角在故事中的形象。用口语化的语气来描写内心情感。详细描述人物、环境和情境的细节固定主角的思考和性格。确保主角在整个故事中都保持自己的思考和性格，不要改变他们的行为方式。Let's work this out it a step by step to be sure we have the right answer."
   }
  ]

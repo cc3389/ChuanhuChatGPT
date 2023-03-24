@@ -194,7 +194,7 @@ with gr.Blocks(css=customCSS, theme=small_and_beautiful_theme) as demo:
                         temperature = gr.Slider(
                             minimum=-0,
                             maximum=2.0,
-                            value=1.0,
+                            value=0.8,
                             step=0.1,
                             interactive=True,
                             label="Temperature",
