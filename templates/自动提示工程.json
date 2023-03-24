@@ -1,7 +1,7 @@
 [
   {
     "act": "1生成提示",
-    "prompt": "作家被给出了这个指示#{request}#，作家写出的段落为：##start##  ##end##。请根据写出的段落，给出#{request}#。用中文回复我。Let's work this out it a step by step to be sure we have the right answer."
+    "prompt": "作家被给出了这个小说的风格的注意事项：#{request}#，作家写出的段落为：##start##  ##end##。请根据写出的段落，给出#{request}#。用中文回复我。Let's work this out it a step by step to be sure we have the right answer."
   },
   {
     "act": "3检验提示",
@@ -10,5 +10,9 @@
   {
     "act": "2生成相似提示",
     "prompt": "请生成一系列与下列指示相同语义的指示："
+  },
+  {
+    "act": "测试",
+    "prompt": "写一段小说，采用第一人称视角，注重情感和细节描写，让读者更加深入地了解主角的内心世界和所经历的情景。用中文回复我。Let's work this out it a step by step to be sure we have the right answer."
   }
  ]
