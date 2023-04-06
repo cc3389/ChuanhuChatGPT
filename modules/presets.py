@@ -31,15 +31,7 @@ SIM_K = 5
 INDEX_QUERY_TEMPRATURE = 1.0
 
 title = """<h1 align="left">川虎ChatGPT 🚀</h1>"""
-description = """\
-<div align="center" style="margin:16px 0">
-
-由Bilibili [土川虎虎虎](https://space.bilibili.com/29125536) 和 [明昭MZhao](https://space.bilibili.com/24807452)开发
-
-访问川虎ChatGPT的 [GitHub项目](https://github.com/GaiZhenbiao/ChuanhuChatGPT) 下载最新版脚本
-
-此App使用 `gpt-3.5-turbo` 大语言模型
-</div>
+description = """
 """
 
 footer = """<div class="versions">{versions}</div>"""
@@ -57,8 +49,8 @@ MODELS = [
 
 MODEL_SOFT_TOKEN_LIMIT = {
     "gpt-3.5-turbo": {
-        "streaming": 3500,
-        "all": 3500
+        "streaming": 4000,
+        "all": 4000
     },
     "gpt-3.5-turbo-0301": {
         "streaming": 3500,
