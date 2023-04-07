@@ -32,6 +32,7 @@ INDEX_QUERY_TEMPRATURE = 1.0
 
 title = """<h1 align="left">川虎ChatGPT 🚀</h1>"""
 description = """
+<br/><br/><br/><br/>
 """
 
 footer = """<div class="versions">{versions}</div>"""
